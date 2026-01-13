@@ -130,8 +130,26 @@ This project demonstrates how large Futures & Options datasets can be organized 
 fo-database-design/
 ├── README.md
 ├── ddl/
-│ └── create_tables.sql
+│   ├── create_tables.sql
+│   └── index_partition.sql
 ├── queries/
-│ └── analysis_queries.sql
+│   └── analysis_queries.sql
+├── ingestion/
+│   └── load_data.py
 ├── docs/
-│ └── ER_Diagram.pdf
+│   ├── ER_Diagram.pdf
+│   └── Design_Reasoning.pdf
+
+---
+
+## Design Rationale and Scalability
+
+### Normalization and Schema Choice
+The database was designed using Third Normal Form (3NF) to reduce redundancy and maintain data consistency. Reference data such as exchanges, instruments, and contract details was separated from time-based trading data to ensure clean organization and efficient storage.
+
+### Why Star Schema Was Avoided
+A fully denormalized star schema was avoided because Futures & Options data is update-heavy and contains high-cardinality attributes such as strike prices and expiry dates. Using a normalized schema reduces data duplication, improves maintainability, and is better suited for continuous data ingestion scenarios.
+
+### Scalability for High-Volume Data
+The Trades table is designed to scale beyond 10 million rows by isolating high-volume time-series data from reference tables. Indexing on timestamp, exchange, and instrument-related columns, along with support for table partitioning, enables efficient querying and makes the design suitable for high-frequency trading (HFT)-like analytical workloads.
+
